@@ -6,7 +6,7 @@ module VertebraGit
       bind_op "/code/commit", :code_commit
       desc "/code/commit", "Announce a commit"
       def code_commit(operation, args)
-        repository = args['repository']
+        repository = args['repository'].last
         commit = args["commit"]
         puts "Got a commit for #{repository}"
         pp commit
