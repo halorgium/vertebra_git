@@ -7,5 +7,9 @@ pid_path: tmp/git.pid
 actor_path: actors
 herault_jid: herault@localhost/herault
 actor_path: lib
+default_resources:
+- "/repository/github/halorgium/test-2"
 actors:
- - vertebra_git/actors/watcher
+  vertebra_git/actors/watcher:
+  - "/ircnet/freenode"
+  - "/channel/halorgium"
