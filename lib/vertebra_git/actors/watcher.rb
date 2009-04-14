@@ -7,11 +7,9 @@ module VertebraGit
         @announce_ircnet, @announce_channel = args.first
       end
 
-      provides "/code/commit"
-
-      bind_op "/code/commit", :code_commit
-      desc "/code/commit", "Announce a commit"
-      def code_commit(operation, args)
+      bind_op "/code/commit"
+      desc "Announce a commit"
+      def commit(operation, args)
         repository = args['repository']
         repository_name = repository.last
         commit = args["commit"]
@@ -21,12 +19,34 @@ module VertebraGit
         ref =   commit['id'][0,7]
         author = commit['author']['name']
 
-        send_to_irc "[#{repository_name}] #{topic} - #{ref} - #{author}"
+        send_to_irc "[#{repository_name}] <commit> #{topic} - #{ref} - #{author}"
 
         args = {:repository => repository, :commit => commit}
         @agent.request("/ci/build", :single, args) do |response|
           puts "build pushed: #{response.inspect}"
         end
+        true
+      end
+
+      bind_op "/code/built"
+      desc "Announce a build"
+      def code_built(operation, args)
+        repository = args['repository']
+        repository_name = repository.last
+        commit = args["commit"]
+
+        topic = commit['message'].split("\n").first
+        ref =   commit['id'][0,7]
+        author = commit['author']['name']
+
+        prefix = "[#{repository_name}] <build> #{topic} - #{ref} - #{author}"
+
+        if args['result']
+          send_to_irc "#{prefix} passed"
+        else
+          send_to_irc "#{prefix} failed"
+        end
+
         true
       end
 
